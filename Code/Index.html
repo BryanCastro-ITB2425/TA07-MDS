@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora Sostenible</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<body>
+   <div class="header">
+       <h1>Calculadora Sostenible</h1>
+       <h2>Selecciona un tipo de cálculo:</h2>
+   </div>
+
+
+   <div class="buttons-container">
+       <button class="energia" onclick="ejecutarCalculo('energia')">⚡ Calcular Energía</button>
+       <button class="agua" onclick="ejecutarCalculo('agua')">💧 Calcular Agua</button>
+       <button class="consumibles" onclick="ejecutarCalculo('consumibles')">📦 Calcular Consumibles</button>
+   </div>
+
+
+   <canvas id="graficoConsumo" width="400" height="200"></canvas>
+
+
+   <div id="textoBajo" class="texto-bajo"></div>
+
+
+   <script>
+       let chartInstance = null;
+
+
+       function generarConsumoMensual(tipo) {
+           let numMeses = 12;
+           let consumos = [];
+           let consumoBase, variabilidad, picoFactor;
+
+
+           if (tipo === 'energia') {
+               consumoBase = 200;
+               variabilidad = 0.2;
+               picoFactor = 1.3;
+           } else if (tipo === 'agua') {
+               consumoBase = 150;
+               variabilidad = 0.2;
+               picoFactor = 1.5;
+           } else if (tipo === 'consumibles') {
+               consumoBase = 1000;
+               variabilidad = 1;
+               picoFactor = 1.0;
+           }
+
+
+           for (let i = 0; i < numMeses; i++) {
+               let variacion = Math.random() * variabilidad * consumoBase;
+               consumos.push(consumoBase + variacion * picoFactor);
+           }
+           return consumos;
+       }
+
+
+       function ejecutarCalculo(tipo) {
+           let consumos = generarConsumoMensual(tipo);
+           let ctx = document.getElementById('graficoConsumo').getContext('2d');
+          
+           if (chartInstance) {
+               chartInstance.destroy();
+           }
+          
+           chartInstance = new Chart(ctx, {
+               type: 'line',
+               data: {
+                   labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                   datasets: [{
+                       label: `Consumo de ${tipo}`,
+                       data: consumos,
+                       borderColor: tipo === 'energia' ? '#007BFF' : tipo === 'agua' ? '#28A745' : '#DC3545',
+                       fill: true,
+                       backgroundColor: tipo === 'energia' ? 'rgba(0, 123, 255, 0.2)' : tipo === 'agua' ? 'rgba(40, 167, 69, 0.2)' : 'rgba(220, 53, 69, 0.2)'
+                   }]
+               },
+               options: {
+                   responsive: true,
+                   scales: {
+                       y: {
+                           beginAtZero: true
+                       }
+                   }
+               }
+           });
+
+
+           let textoBajo = document.getElementById('textoBajo');
+           if (tipo === 'energia') {
+               textoBajo.textContent = "Se calcula el consumo de energia mensual y se observa el crecimiento y el descenso mediante la estadistica";
+           } else if (tipo === 'agua') {
+               textoBajo.textContent = "Calculando el consumo de agua mensual segun la estacionalidad. Se observa la variación del consumo segun los meses.";
+           } else if (tipo === 'consumibles') {
+               textoBajo.textContent = "Calculando el consumo de consumibles y los distintos productos de oficina que se han comprado durante el año segun las necesidades de centro.";
+           }
+       }
+   </script>
+</body>
+</html>
